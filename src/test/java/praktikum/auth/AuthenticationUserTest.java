@@ -14,22 +14,20 @@ import static praktikum.helper.UserData.*;
 public class AuthenticationUserTest {
     private final AuthUsers authUsers = new AuthUsers();
     private final AssertsAuth assertsAuth = new AssertsAuth();
-    private final static UserData userData = new UserData();
     private final static UsersRegistration usersRegistration = new UsersRegistration();
     private static ValidatableResponse authBaseUser;
     private Authentication auth;
-    private static String userToken;
 
     @BeforeClass
     public static void creatBaseUser() {
-        usersRegistration.userRegistration(userData.baseUser());
+        usersRegistration.userRegistration(UserData.baseUser());
     }
 
     @Test
     @DisplayName("Аутентификация под существующим пользователем")
     @Description("Аутентификация под существующим пользователем")
     public void successfulUserAuthentication() {
-        auth = Authentication.fromRegistrationUser(userData.baseUser());
+        auth = Authentication.fromRegistrationUser(UserData.baseUser());
         authBaseUser = authUsers.authenticationUser(auth);
         assertsAuth.successfulAuthentication(authBaseUser);
     }
@@ -38,7 +36,7 @@ public class AuthenticationUserTest {
     @DisplayName("Аутентификация с некорректным логином или паролем.")
     @Description("Аутентификация с некорректным логином или паролем.")
     public void userAuthWithIncorrectLogin() {
-        auth = Authentication.fromRegistrationUser(userData.randomUser());
+        auth = Authentication.fromRegistrationUser(UserData.randomUser());
         authBaseUser = authUsers.authenticationUser(auth);
         assertsAuth.failedAuthentication(authBaseUser);
     }
@@ -63,8 +61,7 @@ public class AuthenticationUserTest {
 
     @AfterClass
     public static void deleteUser() {
-        userToken = authBaseUser.extract().path("accessToken");
+        String userToken = authBaseUser.extract().path("accessToken");
         usersRegistration.deleteUser(userToken);
     }
-
 }

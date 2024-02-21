@@ -12,22 +12,16 @@ import praktikum.registrations.user.UsersRegistration;
 
 @DisplayName("Проверка создания пользователя")
 public class RegistrationUserTest {
-    private final UserData userData = new UserData();
     private final UsersRegistration usersRegistration = new UsersRegistration();
     private final AssertsRegistrations assertsRegistrations = new AssertsRegistrations();
     private final AuthUsers authUsers = new AuthUsers();
-    private ValidatableResponse authRandomUser;
     private ValidatableResponse creatingUser;
-    private ValidatableResponse creatingBaseUser;
-    private Authentication authUserData;
-    private String userToken;
-    private String randomUserEmail;
 
     @Test
     @DisplayName("Регистрация уникального пользователя")
     @Description("Создать уникального пользователя")
     public void creatingUniqueUser() {
-        creatingUser = usersRegistration.userRegistration(userData.randomUser());
+        creatingUser = usersRegistration.userRegistration(UserData.randomUser());
         assertsRegistrations.successfulCreation(creatingUser);
 
     }
@@ -36,8 +30,8 @@ public class RegistrationUserTest {
     @DisplayName("Повторная регистрация пользователя")
     @Description("Создать пользователя, который уже зарегистрирован")
     public void createUserAlreadyExists() {
-        creatingUser = usersRegistration.userRegistration(userData.baseUser());
-        creatingBaseUser = usersRegistration.userRegistration(userData.baseUser());
+        creatingUser = usersRegistration.userRegistration(UserData.baseUser());
+        ValidatableResponse creatingBaseUser = usersRegistration.userRegistration(UserData.baseUser());
         assertsRegistrations.creatingExistingAccount(creatingBaseUser);
     }
 
@@ -45,7 +39,7 @@ public class RegistrationUserTest {
     @DisplayName("Регистрация пользователя с пустым email")
     @Description("создать пользователя и не заполнить одно из обязательных полей.")
     public void createUserEmptyEmail() {
-        creatingUser = usersRegistration.userRegistration(userData.userWithEmptyLogin());
+        creatingUser = usersRegistration.userRegistration(UserData.userWithEmptyLogin());
         assertsRegistrations.failedCreation(creatingUser);
     }
 
@@ -53,7 +47,7 @@ public class RegistrationUserTest {
     @DisplayName("Регистрация пользователя с пустым password")
     @Description("создать пользователя и не заполнить одно из обязательных полей.")
     public void createUserEmptyPassword() {
-        creatingUser = usersRegistration.userRegistration(userData.userWithEmptyPassword());
+        creatingUser = usersRegistration.userRegistration(UserData.userWithEmptyPassword());
         assertsRegistrations.failedCreation(creatingUser);
     }
 
@@ -61,19 +55,18 @@ public class RegistrationUserTest {
     @DisplayName("Регистрация пользователя с пустым name")
     @Description("создать пользователя и не заполнить одно из обязательных полей.")
     public void createUserEmptyName() {
-        creatingUser = usersRegistration.userRegistration(userData.userWithEmptyName());
+        creatingUser = usersRegistration.userRegistration(UserData.userWithEmptyName());
         assertsRegistrations.failedCreation(creatingUser);
     }
 
     @After
     public void deleteUser() {
         if (creatingUser.extract().path("user.email") != null) {
-            randomUserEmail = creatingUser.extract().path("user.email");
-            authUserData = new Authentication(randomUserEmail, "12345678");
-            authRandomUser = authUsers.authenticationUser(authUserData);
-            userToken = authRandomUser.extract().path("accessToken");
+            String randomUserEmail = creatingUser.extract().path("user.email");
+            Authentication authUserData = new Authentication(randomUserEmail, "12345678");
+            ValidatableResponse authRandomUser = authUsers.authenticationUser(authUserData);
+            String userToken = authRandomUser.extract().path("accessToken");
             usersRegistration.deleteUser(userToken);
         }
     }
-
 }
